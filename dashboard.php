@@ -4,14 +4,14 @@ if (!is_logged_in()) { redirect('login.php'); }
 
 $user_id = get_user_id();
 
-$income_result = $conn->query("SELECT SUM(amount) AS total FROM income WHERE user_id = $user_id");
-$total_income = $income_result->fetch_assoc()['total'] ?? 0;
+$income_result  = $conn->query("SELECT SUM(amount) AS total FROM income WHERE user_id = $user_id");
+$total_income   = $income_result->fetch_assoc()['total'] ?? 0;
 
 $expense_result = $conn->query("SELECT SUM(amount) AS total FROM expense WHERE user_id = $user_id");
-$total_expense = $expense_result->fetch_assoc()['total'] ?? 0;
+$total_expense  = $expense_result->fetch_assoc()['total'] ?? 0;
 
-$debt_result = $conn->query("SELECT SUM(amount) AS total FROM debt WHERE user_id = $user_id");
-$total_debt = $debt_result->fetch_assoc()['total'] ?? 0;
+$debt_result    = $conn->query("SELECT SUM(amount) AS total FROM debt WHERE user_id = $user_id");
+$total_debt     = $debt_result->fetch_assoc()['total'] ?? 0;
 
 $balance = $total_income - $total_expense - $total_debt;
 
@@ -27,104 +27,157 @@ $transactions = $conn->query("
     LIMIT 10
 ");
 
-$page_title = 'Financial Dashboard';
-$page_section = 'Dashboard';
+$page_title   = 'Dashboard';
+$page_section = 'Finance Module';
 
 ob_start();
 ?>
-<div class="space-y-6">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-white border border-slate-200 rounded-lg p-4">
-            <p class="text-[11px] uppercase tracking-wide text-slate-500">Current Balance</p>
-            <p class="text-2xl font-semibold text-slate-900 mt-1">$<?php echo number_format($balance, 2); ?></p>
-            <p class="text-[11px] text-emerald-600 mt-1"><i class="fas fa-circle-up mr-1"></i>Net after expenses and debt</p>
+<div class="space-y-4">
+
+    <!-- Top summary row, more compact and modern -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div class="bg-white border border-[#d1d5db] px-3 py-3">
+            <p class="text-[11px] text-[#6b7280] uppercase tracking-wide">Net Balance</p>
+            <p class="mt-1 text-[20px] font-semibold text-[#111827]">
+                ₹<?php echo number_format($balance, 2); ?>
+            </p>
+            <p class="mt-1 text-[11px] text-[#4b5563]">After income, expenses and debt</p>
         </div>
-        <div class="bg-white border border-slate-200 rounded-lg p-4">
-            <p class="text-[11px] uppercase tracking-wide text-slate-500">Total Income</p>
-            <p class="text-2xl font-semibold text-emerald-600 mt-1">$<?php echo number_format($total_income, 2); ?></p>
-            <p class="text-[11px] text-slate-500 mt-1">All recorded income</p>
+        <div class="bg-white border border-[#d1d5db] px-3 py-3">
+            <p class="text-[11px] text-[#6b7280] uppercase tracking-wide">Total Income</p>
+            <p class="mt-1 text-[20px] font-semibold text-green-700">
+                ₹<?php echo number_format($total_income, 2); ?>
+            </p>
+            <p class="mt-1 text-[11px] text-[#4b5563]">All recorded credit entries</p>
         </div>
-        <div class="bg-white border border-slate-200 rounded-lg p-4">
-            <p class="text-[11px] uppercase tracking-wide text-slate-500">Total Expense</p>
-            <p class="text-2xl font-semibold text-rose-600 mt-1">$<?php echo number_format($total_expense, 2); ?></p>
-            <p class="text-[11px] text-slate-500 mt-1">All recorded expenses</p>
+        <div class="bg-white border border-[#d1d5db] px-3 py-3">
+            <p class="text-[11px] text-[#6b7280] uppercase tracking-wide">Total Expense</p>
+            <p class="mt-1 text-[20px] font-semibold text-red-700">
+                ₹<?php echo number_format($total_expense, 2); ?>
+            </p>
+            <p class="mt-1 text-[11px] text-[#4b5563]">All recorded debit entries</p>
         </div>
-        <div class="bg-white border border-slate-200 rounded-lg p-4">
-            <p class="text-[11px] uppercase tracking-wide text-slate-500">Outstanding Debt</p>
-            <p class="text-2xl font-semibold text-amber-600 mt-1">$<?php echo number_format($total_debt, 2); ?></p>
-            <p class="text-[11px] text-slate-500 mt-1">Total pending liabilities</p>
+        <div class="bg-white border border-[#d1d5db] px-3 py-3">
+            <p class="text-[11px] text-[#6b7280] uppercase tracking-wide">Outstanding Debt</p>
+            <p class="mt-1 text-[20px] font-semibold text-orange-700">
+                ₹<?php echo number_format($total_debt, 2); ?>
+            </p>
+            <p class="mt-1 text-[11px] text-[#4b5563]">Current unpaid liabilities</p>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-lg">
-            <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-                <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-500">Ledger</p>
-                    <h2 class="text-sm font-semibold text-slate-900">Recent Transactions</h2>
-                </div>
-                <a href="export_csv.php" class="inline-flex items-center px-3 py-1.5 rounded-md bg-blue-600 text-white text-xs font-medium hover:bg-blue-700">
-                    <i class="fas fa-download mr-2"></i>Export CSV
-                </a>
+    <!-- Summary table -->
+    <div class="bg-white border border-[#d1d5db]">
+        <div class="bg-[#f9fafb] border-b border-[#e5e7eb] px-3 py-2 flex items-center justify-between">
+            <span class="text-[12px] font-semibold text-[#111827]">Summary (Detailed)</span>
+            <span class="text-[11px] text-[#6b7280]">Snapshot of your current position</span>
+        </div>
+        <div class="p-3">
+            <table class="w-full border border-[#d1d5db] text-[12px]">
+                <thead class="bg-[#f3f4f6]">
+                    <tr>
+                        <th class="border border-[#d1d5db] px-2 py-1 text-left">Metric</th>
+                        <th class="border border-[#d1d5db] px-2 py-1 text-left">Amount (₹)</th>
+                        <th class="border border-[#d1d5db] px-2 py-1 text-left">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border border-[#d1d5db] px-2 py-1">Total Income</td>
+                        <td class="border border-[#d1d5db] px-2 py-1 text-green-700 font-semibold">
+                            ₹<?php echo number_format($total_income, 2); ?>
+                        </td>
+                        <td class="border border-[#d1d5db] px-2 py-1">All recorded income entries</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-[#d1d5db] px-2 py-1">Total Expense</td>
+                        <td class="border border-[#d1d5db] px-2 py-1 text-red-700 font-semibold">
+                            ₹<?php echo number_format($total_expense, 2); ?>
+                        </td>
+                        <td class="border border-[#d1d5db] px-2 py-1">All recorded expense entries</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-[#d1d5db] px-2 py-1">Outstanding Debt</td>
+                        <td class="border border-[#d1d5db] px-2 py-1 text-orange-700 font-semibold">
+                            ₹<?php echo number_format($total_debt, 2); ?>
+                        </td>
+                        <td class="border border-[#d1d5db] px-2 py-1">Total unpaid liabilities</td>
+                    </tr>
+                    <tr class="bg-[#f9fafb]">
+                        <td class="border border-[#d1d5db] px-2 py-1 font-semibold">Net Balance</td>
+                        <td class="border border-[#d1d5db] px-2 py-1 font-semibold">
+                            ₹<?php echo number_format($balance, 2); ?>
+                        </td>
+                        <td class="border border-[#d1d5db] px-2 py-1">Income − Expense − Debt</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Transactions with subtle badges -->
+    <div class="bg-white border border-[#d1d5db]">
+        <div class="bg-[#f9fafb] border-b border-[#e5e7eb] px-3 py-2 flex justify-between items-center">
+            <span class="text-[12px] font-semibold text-[#111827]">Recent Transactions</span>
+            <div class="flex items-center gap-3 text-[11px]">
+                <span class="text-[#6b7280] hidden sm:inline">Last 10 entries</span>
+                <a href="export_csv.php" class="text-[#2563eb] underline">Export CSV</a>
             </div>
-            <div class="px-4 py-3 border-b border-slate-200 flex flex-wrap gap-2 items-center text-xs">
-                <span class="text-slate-500 mr-2">Quick filters:</span>
-                <button class="px-2 py-1 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50">All</button>
-                <button class="px-2 py-1 rounded-md border border-slate-200 text-emerald-600 hover:bg-slate-50">Income</button>
-                <button class="px-2 py-1 rounded-md border border-slate-200 text-rose-600 hover:bg-slate-50">Expense</button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-xs">
-                    <thead class="bg-slate-50 border-b border-slate-200">
-                        <tr>
-                            <th class="px-4 py-2 text-left font-semibold text-slate-600">Date</th>
-                            <th class="px-4 py-2 text-left font-semibold text-slate-600">Type</th>
-                            <th class="px-4 py-2 text-left font-semibold text-slate-600">Category</th>
-                            <th class="px-4 py-2 text-left font-semibold text-slate-600">Amount</th>
-                            <th class="px-4 py-2 text-left font-semibold text-slate-600">Note</th>
+        </div>
+        <div class="p-3 overflow-x-auto">
+            <table class="min-w-full border border-[#d1d5db] text-[12px]">
+                <thead class="bg-[#f3f4f6]">
+                    <tr>
+                        <th class="border border-[#d1d5db] px-2 py-1 text-left">Date</th>
+                        <th class="border border-[#d1d5db] px-2 py-1 text-left">Type</th>
+                        <th class="border border-[#d1d5db] px-2 py-1 text-left">Category</th>
+                        <th class="border border-[#d1d5db] px-2 py-1 text-left">Amount (₹)</th>
+                        <th class="border border-[#d1d5db] px-2 py-1 text-left">Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $transactions->fetch_assoc()): ?>
+                        <?php
+                            $isIncome = ($row['type'] === 'Income');
+                            $typeClass = $isIncome
+                                ? 'bg-green-50 text-green-700 border border-green-200'
+                                : 'bg-red-50 text-red-700 border border-red-200';
+                            $amountClass = $isIncome ? 'text-green-700' : 'text-red-700';
+                            $prefix = $isIncome ? '+' : '-';
+                        ?>
+                        <tr class="hover:bg-[#f9fafb]">
+                            <td class="border border-[#d1d5db] px-2 py-1">
+                                <?php echo htmlspecialchars($row['date']); ?>
+                            </td>
+                            <td class="border border-[#d1d5db] px-2 py-1">
+                                <span class="inline-block px-2 py-0.5 rounded-full text-[11px] <?php echo $typeClass; ?>">
+                                    <?php echo htmlspecialchars($row['type']); ?>
+                                </span>
+                            </td>
+                            <td class="border border-[#d1d5db] px-2 py-1">
+                                <?php echo htmlspecialchars($row['category'] ?? '-'); ?>
+                            </td>
+                            <td class="border border-[#d1d5db] px-2 py-1 font-semibold <?php echo $amountClass; ?>">
+                                <?php echo $prefix; ?>₹<?php echo number_format($row['amount'], 2); ?>
+                            </td>
+                            <td class="border border-[#d1d5db] px-2 py-1">
+                                <?php echo htmlspecialchars($row['note'] ?? '-'); ?>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        <?php while ($row = $transactions->fetch_assoc()): ?>
-                            <tr class="hover:bg-slate-50">
-                                <td class="px-4 py-2 text-slate-800"><?php echo htmlspecialchars($row['date']); ?></td>
-                                <td class="px-4 py-2">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium <?php echo $row['type'] === 'Income' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'; ?>">
-                                        <?php echo htmlspecialchars($row['type']); ?>
-                                    </span>
-                                </td>
-                                <td class="px-4 py-2 text-slate-700"><?php echo htmlspecialchars($row['category'] ?? '-'); ?></td>
-                                <td class="px-4 py-2 font-semibold <?php echo $row['type'] === 'Income' ? 'text-emerald-600' : 'text-rose-600'; ?>">
-                                    <?php echo $row['type'] === 'Income' ? '+' : '-'; ?>$<?php echo number_format($row['amount'], 2); ?>
-                                </td>
-                                <td class="px-4 py-2 text-slate-600"><?php echo htmlspecialchars($row['note'] ?? '-'); ?></td>
-                            </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                    <?php endwhile; ?>
 
-        <div class="space-y-4">
-            <div class="bg-white border border-slate-200 rounded-lg p-4">
-                <p class="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Alerts & Tasks</p>
-                <ul class="text-xs text-slate-700 space-y-2">
-                    <li class="flex gap-2">
-                        <i class="fas fa-circle-exclamation text-amber-500 mt-0.5"></i>
-                        <span>Review upcoming debt due dates and adjust budgets if required.</span>
-                    </li>
-                    <li class="flex gap-2">
-                        <i class="fas fa-circle-info text-blue-500 mt-0.5"></i>
-                        <span>Ensure categories are aligned with institutional chart of accounts.</span>
-                    </li>
-                </ul>
-            </div>
-            <div class="bg-white border border-slate-200 rounded-lg p-4">
-                <p class="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Module Overview</p>
-                <p class="text-xs text-slate-600">This console consolidates income, expenses, debts and budget controls in a single operational view, similar to internal banking or university finance systems.</p>
-            </div>
+                    <?php if ($transactions->num_rows === 0): ?>
+                        <tr>
+                            <td colspan="5" class="border border-[#d1d5db] px-2 py-2 text-center text-[#6b7280]">
+                                No transactions found.
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
+
 </div>
 <?php
 $page_content = ob_get_clean();

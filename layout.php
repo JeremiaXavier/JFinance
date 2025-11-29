@@ -1,87 +1,113 @@
-<?php if (!isset($page_title)) { $page_title = 'Finance Manager'; } ?>
+<?php if (!isset($page_title)) { $page_title = 'Finance Console'; } ?>
+<?php if (!isset($page_section)) { $page_section = 'Home'; } ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title><?php echo htmlspecialchars($page_title); ?> - Finance Manager</title>
+    <title><?php echo htmlspecialchars($page_title); ?> - Finance Console</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-100 text-slate-900">
-<div class="min-h-screen flex">
-    <aside class="w-64 bg-slate-900 text-slate-100 flex flex-col">
-        <div class="h-16 flex items-center px-4 border-b border-slate-800">
+<body class="bg-[#f3f4f6] text-[#111827] text-[13px]">
+<div class="min-h-screen flex flex-col">
+
+    <header class="bg-[#003366] text-white">
+        <div class="max-w-6xl mx-auto px-3 py-2 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <div class="bg-blue-600 p-2 rounded-md">
-                    <i class="fas fa-building text-white text-lg"></i>
+                <div class="h-8 w-8 bg-white rounded-sm flex items-center justify-center text-[#003366] text-xs font-bold">
+                    JF
                 </div>
-                <div>
-                    <p class="text-sm uppercase tracking-wide text-slate-400">Finance Suite</p>
-                    <p class="font-semibold text-sm">Institution Edition</p>
+                <div class="leading-tight">
+                    <p class="text-[20px] font-semibold tracking-wide uppercase">JFinance</p>
+                    <p class="text-[11px]">Jeremia Xavier Softwares</p>
                 </div>
             </div>
+            <div class="text-right leading-tight">
+                <p class="text-[11px]">
+                    Signed in as:
+                    <span class="font-semibold">
+                        <?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?>
+                    </span>
+                </p>
+            </div>
         </div>
-        <nav class="flex-1 overflow-y-auto py-4">
+    </header>
+
+    <nav class="bg-[#e5f0fb] border-b border-[#cbd5e1]">
+        <div class="max-w-6xl mx-auto px-3 flex flex-wrap items-center text-[12px]">
             <?php $current = basename($_SERVER['PHP_SELF']); ?>
-            <p class="px-4 text-[11px] uppercase tracking-wide text-slate-500 mb-2">Main</p>
-            <a href="dashboard.php" class="flex items-center px-4 py-2 text-sm <?php echo $current === 'dashboard.php' ? 'bg-slate-800 text-blue-300' : 'text-slate-200 hover:bg-slate-800'; ?>">
-                <i class="fas fa-gauge-high mr-3 w-4 text-blue-400"></i>Dashboard
-            </a>
-            <p class="px-4 text-[11px] uppercase tracking-wide text-slate-500 mt-4 mb-2">Transactions</p>
-            <a href="income.php" class="flex items-center px-4 py-2 text-sm <?php echo $current === 'income.php' ? 'bg-slate-800 text-blue-300' : 'text-slate-200 hover:bg-slate-800'; ?>">
-                <i class="fas fa-arrow-trend-up mr-3 w-4 text-emerald-400"></i>Income
-            </a>
-            <a href="expense.php" class="flex items-center px-4 py-2 text-sm <?php echo $current === 'expense.php' ? 'bg-slate-800 text-blue-300' : 'text-slate-200 hover:bg-slate-800'; ?>">
-                <i class="fas fa-arrow-trend-down mr-3 w-4 text-rose-400"></i>Expense
-            </a>
-            <a href="debt.php" class="flex items-center px-4 py-2 text-sm <?php echo $current === 'debt.php' ? 'bg-slate-800 text-blue-300' : 'text-slate-200 hover:bg-slate-800'; ?>">
-                <i class="fas fa-credit-card mr-3 w-4 text-amber-400"></i>Debt
-            </a>
-            <p class="px-4 text-[11px] uppercase tracking-wide text-slate-500 mt-4 mb-2">Controls</p>
-            <a href="budget.php" class="flex items-center px-4 py-2 text-sm <?php echo $current === 'budget.php' ? 'bg-slate-800 text-blue-300' : 'text-slate-200 hover:bg-slate-800'; ?>">
-                <i class="fas fa-bullseye mr-3 w-4 text-purple-400"></i>Budget
-            </a>
-            <a href="category.php" class="flex items-center px-4 py-2 text-sm <?php echo $current === 'category.php' ? 'bg-slate-800 text-blue-300' : 'text-slate-200 hover:bg-slate-800'; ?>">
-                <i class="fas fa-tags mr-3 w-4 text-indigo-400"></i>Categories
-            </a>
-        </nav>
-        <div class="border-t border-slate-800 px-4 py-3 text-xs text-slate-400">
-            <p class="mb-1">Signed in as</p>
-            <p class="font-semibold text-slate-100 text-sm"><?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?></p>
-            <a href="logout.php" class="mt-3 inline-flex items-center text-rose-400 hover:text-rose-300 text-xs">
-                <i class="fas fa-sign-out-alt mr-2"></i>Logout
-            </a>
+            <?php
+                function fm_menu_item($file, $label, $current) {
+                    $active = ($current === $file);
+                    $classes = $active
+                        ? 'border-b-2 border-[#003366] text-[#003366] font-semibold'
+                        : 'text-[#1f2937] hover:text-[#003366]';
+                    echo '<a href="'.$file.'" class="px-3 py-2 '.$classes.'">'.$label.'</a>';
+                }
+            ?>
+            <?php fm_menu_item('dashboard.php', 'Dashboard', $current); ?>
+            <?php fm_menu_item('income.php', 'Income', $current); ?>
+            <?php fm_menu_item('expense.php', 'Expense', $current); ?>
+            <?php fm_menu_item('debt.php', 'Debt', $current); ?>
+            <?php fm_menu_item('budget.php', 'Budget', $current); ?>
+            <?php fm_menu_item('category.php', 'Categories', $current); ?>
+            <?php fm_side_item('letter_generator.php', 'Letters', $side); ?>
+
+            <div class="flex-1"></div>
+            <a href="logout.php" class="px-3 py-2 text-red-700 hover:text-red-900">Logout</a>
         </div>
-    </aside>
+    </nav>
 
-    <div class="flex-1 flex flex-col min-w-0">
-        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6">
-            <div>
-                <p class="text-[11px] uppercase tracking-wide text-slate-500">Finance / <?php echo htmlspecialchars($page_section ?? 'Dashboard'); ?></p>
-                <h1 class="text-lg font-semibold text-slate-900"><?php echo htmlspecialchars($page_title); ?></h1>
-            </div>
-            <div class="flex items-center gap-4">
-                <div class="hidden md:flex items-center bg-slate-100 px-3 py-1.5 rounded-md text-xs text-slate-500">
-                    <i class="fas fa-search mr-2 text-slate-400"></i>
-                    <input type="text" placeholder="Search in module..." class="bg-transparent focus:outline-none text-xs w-40">
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="text-right">
-                        <p class="text-xs font-medium text-slate-700"><?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?></p>
-                        <p class="text-[11px] text-slate-400">Finance Officer</p>
-                    </div>
-                    <div class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-semibold text-white">
-                        <?php echo strtoupper(substr($_SESSION['username'] ?? 'U', 0, 1)); ?>
-                    </div>
-                </div>
-            </div>
-        </header>
+    <div class="bg-white border-b border-[#e5e7eb]">
+        <div class="max-w-6xl mx-auto px-3 py-2 text-[11px] text-[#4b5563]">
+            Home &gt; <?php echo htmlspecialchars($page_section); ?> &gt; <?php echo htmlspecialchars($page_title); ?>
+        </div>
+    </div>
 
-        <main class="flex-1 overflow-y-auto p-6">
-            <?php echo $page_content ?? ''; ?>
+    <div class="flex flex-1">
+        <aside class="w-56 bg-[#f9fafb] border-r border-[#d1d5db]">
+            <div class="px-3 py-2 border-b border-[#e5e7eb] bg-[#eef2ff]">
+                <p class="text-[11px] font-semibold text-[#374151] uppercase">Navigation</p>
+            </div>
+            <div class="py-2 text-[12px]">
+                <?php
+                    $side = basename($_SERVER['PHP_SELF']);
+                    function fm_side_item($file, $label, $side) {
+                        $active = ($side === $file);
+                        $classes = $active
+                            ? 'bg-[#dbeafe] text-[#1d4ed8] font-semibold border-l-4 border-[#1d4ed8]'
+                            : 'text-[#374151] hover:bg-[#e5e7eb] border-l-4 border-transparent';
+                        echo '<a href="'.$file.'" class="block px-3 py-2 '.$classes.'">'.$label.'</a>';
+                    }
+                ?>
+                <div class="px-2 py-1 text-[11px] text-[#6b7280] uppercase">Overview</div>
+                <?php fm_side_item('dashboard.php', 'Dashboard', $side); ?>
+
+                <div class="mt-2 px-2 py-1 text-[11px] text-[#6b7280] uppercase">Transactions</div>
+                <?php fm_side_item('income.php', 'Income Register', $side); ?>
+                <?php fm_side_item('expense.php', 'Expense Register', $side); ?>
+                <?php fm_side_item('debt.php', 'Debt Register', $side); ?>
+
+                <div class="mt-2 px-2 py-1 text-[11px] text-[#6b7280] uppercase">Controls</div>
+                <?php fm_side_item('budget.php', 'Budget Control', $side); ?>
+                <?php fm_side_item('category.php', 'Category Master', $side); ?>
+                <?php fm_side_item('letter_generator.php', 'Letters', $side); ?>
+            </div>
+        </aside>
+
+        <main class="flex-1">
+            <div class="max-w-6xl mx-auto px-3 py-4">
+                <?php echo $page_content ?? ''; ?>
+            </div>
         </main>
     </div>
+
+    <footer class="bg-[#e5e7eb] border-t border-[#d1d5db]">
+        <div class="max-w-6xl mx-auto px-3 py-2 text-[11px] text-[#4b5563] flex justify-between">
+            <span>© <?php echo date('Y'); ?> JFinance. Jeremia Xavier Softwares</span>
+            <span>Private use only</span>
+        </div>
+    </footer>
 </div>
 </body>
 </html>
